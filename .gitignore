@@ -1,0 +1,15 @@
+# Top-level .gitignore for Adhlal ETL
+__pycache__/
+*.py[cod]
+venv/
+.poetry/
+.env
+# IDE / editor
+.vscode/
+.ipynb_checkpoints/
+# OS metadata
+.DS_Store
+# CSV exports (raw + structured)
+*.csv
+# Logs
+*.log 
