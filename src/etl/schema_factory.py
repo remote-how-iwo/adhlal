@@ -5,10 +5,27 @@ from datetime import datetime
 from typing import Any, Dict, Optional, Type, Union, ForwardRef
 
 import yaml
-from pydantic import BaseModel, EmailStr, Field, create_model
+from pydantic import BaseModel, EmailStr, Field, create_model, BeforeValidator
+from typing_extensions import Annotated # For Pydantic V2 Annotated types
 from pydantic.fields import FieldInfo
 
 from etl.models import Likert # Assuming Likert is still relevant
+
+def parse_arabic_likert_string(value: Any) -> Any:
+    if isinstance(value, float):
+        num = round(value)
+        return max(1, min(5, num)) # Clamp to 1-5 range
+    if isinstance(value, str):
+        import re
+        match = re.search(r"\d+", value)
+        if match:
+            try:
+                num = int(match.group(0))
+                return max(1, min(5, num)) # Clamp to 1-5 range
+            except ValueError:
+                # If conversion to int fails, return original to let standard validation fail
+                return value 
+    return value
 
 # Type mapping from YAML string to Python/Pydantic types
 # Needs to handle Optional via "type | None" string parsing
@@ -20,7 +37,7 @@ TYPE_MAP: Dict[str, Type[Any] | object] = {
     "float": float,
     "datetime": datetime,
     "EmailStr": EmailStr,
-    "Likert": Likert,
+    "Likert": Annotated[Likert, BeforeValidator(parse_arabic_likert_string)],
     # Add other custom types if needed
 }
 

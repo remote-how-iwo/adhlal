@@ -33,6 +33,7 @@ prompt_template: |
   ===== END  MESSAGES =====
 
   Output **only** a JSON object strictly matching the following schema (field names and types must match exactly):
+  For fields requiring a rating (like Likert scale fields), please provide only a single integer from 1 (lowest/most negative) to 5 (highest/most positive). Do not use descriptive phrases or non-integer numbers for these rating fields.
   {_SCHEMA_EXAMPLE}
 csv_mapping:
   chat_id: "chat_id"
