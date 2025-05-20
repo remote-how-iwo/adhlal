@@ -1,6 +1,6 @@
 # Adhlal ETL – Client On-Boarding Guide
 
-_Updated: June 2024_
+_Updated: May 2025_
 
 ## 1. What problem does this solve?
 
@@ -50,16 +50,17 @@ The main command is `poetry run adhlal-etl <input_csv_path> [options]`.
 
 ### For the Student Survey (default)
 
-**Option A: Write to Postgres** (ensure `DATABASE_URL` is set in your `.env` file)
+**Option 1: Generate a new structured CSV**
+```bash
+poetry run adhlal-etl path/to/your/student_chats_export.csv --output-csv path/to/output/student_structured_data.csv
+```
+
+**Option B: Write to Postgres** (ensure `DATABASE_URL` is set in your `.env` file)
+
 ```bash
 poetry run adhlal-etl path/to/your/student_chats_export.csv
 ```
 This uses the default configuration found at `src/etl/configs/student.yml`.
-
-**Option B: Generate a new structured CSV**
-```bash
-poetry run adhlal-etl path/to/your/student_chats_export.csv --output-csv path/to/output/student_structured_data.csv
-```
 
 ### For Other Survey Types (e.g., Employer Survey)
 
@@ -77,7 +78,7 @@ poetry run adhlal-etl path/to/your/employer_chats_export.csv --config src/etl/co
 
 To add a new survey type (e.g., "Mentor Feedback"), you or your technical team would create a new YAML configuration file in `src/etl/configs/`. See the main `README.md` for technical details on creating these configuration files.
 
-💡 _Tip_: You can open the generated CSV directly in Excel to inspect results.
+💡 _Tip_: You can open the generated CSV directly in Google Sheets/Excel to inspect results.
 
 ---
 
@@ -87,11 +88,10 @@ To add a new survey type (e.g., "Mentor Feedback"), you or your technical team w
 The current OpenAI context limit is ~128 k tokens.  The code smartly truncates very long chats, so you can safely process thousands of rows.  Typical runtime: ~30 s per 100 chats.
 
 **Q: How much will I pay OpenAI?**  
-Each chat triggers one model call.  For `gpt-4o-mini` the cost is ~USD 0.006 per call.  1 000 chats ≈ USD 6.
+Check API pricing: https://openai.com/api/pricing/
 
 **Q: Is my data secure?**  
 • The pipeline never stores your OpenAI key in the codebase – it lives only in your local `.env` file.  
-• All PII stays on your machine and in your database; nothing is logged publicly.
 
 **Q: Can I run it on Windows?**  
 Yes.  The helper `windows_loop.py` patches a known asyncio issue so the same command works on Windows PowerShell / CMD.
@@ -112,18 +112,10 @@ Everything is type-checked, retried on network errors, and capped at `MAX_CONCUR
 
 1. **Share screen** and walk through this guide.
 2. **Clone the repo together** and confirm Python + Poetry install.
-3. **Paste their real OpenAI key** into `.env`.
-4. **Run a small sample file live** for a relevant survey type (e.g., `src/etl/samples/student_small.csv` with the student config, or `src/etl/samples/employer_small.csv` with the employer config) so they see results instantly.
+3. **Paste real OpenAI key** into `.env`.
+4. **Run a small sample file live** for a relevant survey type (e.g., `src/etl/samples/student_small.csv` with the student config, or `src/etl/samples/employer_small.csv` with the employer config) so participants can see results instantly.
 5. **Open Postgres / Excel** to explore the structured data.
 6. **Explain cost & runtime** expectations.
 7. **Hand over ownership** – remind them that from now on the whole process is _one command_.
 
 ---
-
-## 7. Support
-
-If you hit any issues:
-* open an issue on GitHub
-* or email `data-team@adhlal.org` (average reply < 24 h)
-
-Happy analysing! 🎉 
