@@ -1,0 +1,76 @@
+model_name: EmployerProfile
+schema:
+  chat_id: int
+  user_email: "EmailStr"
+  consent: "bool | None"
+  company_value_chain: "str | None" # E.g., "Material Sourcing, Design, Retail"
+  company_size_employees: "str | None" # Can be a range or approximate number
+  company_regions_cities: "str | None" # E.g., "Riyadh, Jeddah, Dammam"
+  frequently_hired_roles: "str | None"
+  hiring_volume_annual: "str | None" # E.g., "25-30 FTE"
+  hiring_pattern: "str | None" # E.g., "Not seasonal, peaks with new stores"
+  position_types: "str | None" # E.g., "Permanent, some contract"
+  grad_skill_satisfaction_rating: "Likert | None"
+  important_technical_skills: "str | None"
+  important_soft_skills: "str | None"
+  skill_gaps_graduates: "str | None"
+  entry_level_experience_req: "str | None"
+  skill_gaps_experienced_candidates: "str | None"
+  recruitment_methods: "str | None"
+  candidate_evaluation_criteria: "str | None"
+  recruitment_challenges: "str | None"
+  new_hire_success_metrics: "str | None"
+  top_performer_qualities: "str | None"
+  education_collaboration_rating: "Likert | None"
+  education_collaboration_examples: "str | None" # E.g., "PNU young talent program"
+  grad_performance_comparison: "str | None" # Differences between institutions
+  development_programs_for_grads: "str | None"
+  global_trends_impact: "str | None"
+  technology_impact_skills: "str | None"
+  skill_requirements_due_to_trends: "str | None"
+  extracted_at: "datetime"
+
+prompt_template: |
+  Chat id: {chat_id}
+  User email: {user_email}
+
+  The following is a concatenation of all *participant* messages (exclude the agent
+  questions) from an employer in the fashion industry. Use it to fill every field you can based on the conversation. If a field is truly unknown or not mentioned, set it to null.
+
+  ===== BEGIN MESSAGES =====
+  {corpus}
+  ===== END  MESSAGES =====
+
+  Output **only** a JSON object strictly matching the following schema (field names and types must match exactly):
+  {_SCHEMA_EXAMPLE}
+
+csv_mapping:
+  chat_id: "chat_id"
+  user_email: "user_email"
+  consent: "consent"
+  company_value_chain: "company_value_chain"
+  company_size_employees: "company_size_employees"
+  company_regions_cities: "company_regions_cities"
+  frequently_hired_roles: "frequently_hired_roles"
+  hiring_volume_annual: "hiring_volume_annual"
+  hiring_pattern: "hiring_pattern"
+  position_types: "position_types"
+  grad_skill_satisfaction_rating: "grad_skill_satisfaction_rating"
+  important_technical_skills: "important_technical_skills"
+  important_soft_skills: "important_soft_skills"
+  skill_gaps_graduates: "skill_gaps_graduates"
+  entry_level_experience_req: "entry_level_experience_req"
+  skill_gaps_experienced_candidates: "skill_gaps_experienced_candidates"
+  recruitment_methods: "recruitment_methods"
+  candidate_evaluation_criteria: "candidate_evaluation_criteria"
+  recruitment_challenges: "recruitment_challenges"
+  new_hire_success_metrics: "new_hire_success_metrics"
+  top_performer_qualities: "top_performer_qualities"
+  education_collaboration_rating: "education_collaboration_rating"
+  education_collaboration_examples: "education_collaboration_examples"
+  grad_performance_comparison: "grad_performance_comparison"
+  development_programs_for_grads: "development_programs_for_grads"
+  global_trends_impact: "global_trends_impact"
+  technology_impact_skills: "technology_impact_skills"
+  skill_requirements_due_to_trends: "skill_requirements_due_to_trends"
+  extracted_at: "extracted_at" 

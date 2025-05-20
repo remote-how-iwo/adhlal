@@ -1,0 +1,54 @@
+model_name: StudentProfile
+schema:
+  chat_id: int
+  user_email: "EmailStr"
+  consent: "bool | None"
+  motivation: "str | None"
+  experience: "str | None"
+  program_choice_reason: "str | None"
+  satisfaction_rating: "Likert | None"
+  satisfaction_reason: "str | None"
+  skills_development: "str | None"
+  industry_alignment_rating: "Likert | None"
+  industry_alignment_details: "str | None"
+  orientation_interest: "bool | None"
+  education:
+    institution: "str | None"
+    major: "str | None"
+    graduation_year: "int | None"
+  contact_info:
+    phone: "str | None"
+    email: "EmailStr | None"
+  extracted_at: "datetime"
+prompt_template: |
+  Chat id: {chat_id}
+  User email: {user_email}
+
+  The following is a concatenation of all *participant* messages (exclude the agent
+  questions). Use it to fill every field you can. If a field is truly unknown set it
+  to null.
+
+  ===== BEGIN MESSAGES =====
+  {corpus}
+  ===== END  MESSAGES =====
+
+  Output **only** a JSON object strictly matching the following schema (field names and types must match exactly):
+  {_SCHEMA_EXAMPLE}
+csv_mapping:
+  chat_id: "chat_id"
+  user_email: "user_email"
+  consent: "consent"
+  motivation: "motivation"
+  experience: "experience"
+  program_choice_reason: "program_choice_reason"
+  satisfaction_rating: "satisfaction_rating"
+  satisfaction_reason: "satisfaction_reason"
+  skills_development: "skills_development"
+  industry_alignment_rating: "industry_alignment_rating"
+  industry_alignment_details: "industry_alignment_details"
+  orientation_interest: "orientation_interest"
+  education__institution: "education.institution"
+  education__major: "education.major"
+  education__graduation_year: "education.graduation_year"
+  contact_info__phone: "contact_info.phone"
+  contact_info__email: "contact_info.email" 
