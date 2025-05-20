@@ -1,16 +1,16 @@
 # Adhlal ETL – Client On-Boarding Guide
 
-_Updated: May 2025_
+_Updated: June 2024_
 
 ## 1. What problem does this solve?
 
-You have exported thousands of chat conversations from the **AI-Mentor** platform.  Hidden inside every chat are valuable signals about students' motivation, experience, and satisfaction.
+You have exported thousands of chat conversations from the **AI-Mentor** platform. Hidden inside every chat are valuable signals about your users' (e.g., students, employers) motivation, experience, and satisfaction.
 
 The **Adhlal ETL** pipeline turns those raw CSV exports into a **clean, structured database** (or CSV file) that you can slice & dice in Excel, Power BI or any BI tool you like.
 
 * ETL = **E**xtract → **T**ransform → **L**oad.
-* "Transform" is powered by OpenAI.  The model reads each student's answers and fills in a validated JSON schema.
-* "Load" writes everything into a Postgres table called `student_feedback` (or, if you prefer, into a new CSV file).
+* "Transform" is powered by OpenAI. The model reads each user's answers and fills in a validated JSON schema, defined by a survey-specific configuration file.
+* "Load" writes everything into a Postgres table (the name can vary based on configuration) or, if you prefer, into a new CSV file.
 
 ---
 
@@ -25,8 +25,8 @@ The **Adhlal ETL** pipeline turns those raw CSV exports into a **clean, structur
    ```
 3. **Clone the repository**
    ```bash
-   git clone https://github.com/adhlal/etl.git
-   cd etl
+   git clone https://github.com/remote-how-iwo/adhlal.git
+   cd adhlal
    ```
 4. **Install dependencies** (runs in an isolated virtual-env)
    ```bash
@@ -46,16 +46,36 @@ That's it! 🚀  From now on every command is run via `poetry run …` which gua
 
 ## 3. Running the pipeline
 
-### Basic (writes to Postgres)
+The main command is `poetry run adhlal-etl <input_csv_path> [options]`.
+
+### For the Student Survey (default)
+
+**Option A: Write to Postgres** (ensure `DATABASE_URL` is set in your `.env` file)
 ```bash
-poetry run adhlal-etl path/to/chats_export.csv
+poetry run adhlal-etl path/to/your/student_chats_export.csv
+```
+This uses the default configuration found at `src/etl/configs/student.yml`.
+
+**Option B: Generate a new structured CSV**
+```bash
+poetry run adhlal-etl path/to/your/student_chats_export.csv --output-csv path/to/output/student_structured_data.csv
 ```
 
-### Advanced (generate a new structured CSV instead of touching the database)
+### For Other Survey Types (e.g., Employer Survey)
+
+You **must** specify the configuration file for other survey types using the `--config` flag.
+
+**Example: Employer Survey, output to CSV**
 ```bash
-poetry run adhlal-etl path/to/chats_export.csv \
-                      --output-csv structured_output.csv
+poetry run adhlal-etl path/to/your/employer_chats_export.csv --config src/etl/configs/employer.yml --output-csv path/to/output/employer_structured_data.csv
 ```
+
+**Example: Employer Survey, output to Postgres** (ensure `DATABASE_URL` is set)
+```bash
+poetry run adhlal-etl path/to/your/employer_chats_export.csv --config src/etl/configs/employer.yml
+```
+
+To add a new survey type (e.g., "Mentor Feedback"), you or your technical team would create a new YAML configuration file in `src/etl/configs/`. See the main `README.md` for technical details on creating these configuration files.
 
 💡 _Tip_: You can open the generated CSV directly in Excel to inspect results.
 
@@ -80,9 +100,9 @@ Yes.  The helper `windows_loop.py` patches a known asyncio issue so the same com
 
 ## 5. Under the hood (for the curious)
 
-1. **Extract** – `etl/extract.py` normalises the CSV into tidy columns and converts timestamps.
-2. **Transform** – `etl/student_analysis.py` prompts OpenAI with the student's answers and validates the output against a strict Pydantic schema (`etl/models.py`).
-3. **Load** – `etl/load.py` upserts each JSON payload into the `student_feedback` table.
+1. **Extract** – `etl/extract.py` normalises the raw input CSV into tidy columns and converts timestamps.
+2. **Transform** – `etl/generic_analysis.py` reads the specified YAML configuration (e.g., from `src/etl/configs/student.yml` or `src/etl/configs/employer.yml`). This configuration defines the data schema and the prompt for OpenAI. `etl/schema_factory.py` dynamically creates the data model based on this schema. Then, `generic_analysis.py` prompts OpenAI with the user's answers and validates the output against this dynamic model.
+3. **Load** – `etl/load.py` upserts each structured JSON payload into the relevant Postgres table (if not outputting to CSV).
 
 Everything is type-checked, retried on network errors, and capped at `MAX_CONCURRENT_REQUESTS` to respect API rate-limits.
 
@@ -93,7 +113,7 @@ Everything is type-checked, retried on network errors, and capped at `MAX_CONCUR
 1. **Share screen** and walk through this guide.
 2. **Clone the repo together** and confirm Python + Poetry install.
 3. **Paste their real OpenAI key** into `.env`.
-4. **Run a small sample file live** (`sample_data/ten_chats.csv`) so they see results instantly.
+4. **Run a small sample file live** for a relevant survey type (e.g., `src/etl/samples/student_small.csv` with the student config, or `src/etl/samples/employer_small.csv` with the employer config) so they see results instantly.
 5. **Open Postgres / Excel** to explore the structured data.
 6. **Explain cost & runtime** expectations.
 7. **Hand over ownership** – remind them that from now on the whole process is _one command_.
