@@ -8,7 +8,7 @@ PostgreSQL database or a CSV file.
 
 - Processes chat exports from AI-Mentor (CSV format).
 - Uses OpenAI's GPT models for structured data extraction.
-- Configurable ETL pipeline: easily add new survey types (e.g., student feedback, employer surveys) by defining a YAML configuration file.
+- Configurable ETL pipeline: easily add new survey types (e.g., feedback forms, general surveys) by defining a YAML configuration file.
 - Outputs to PostgreSQL or a structured CSV file.
 - Asynchronous processing for improved performance.
 
@@ -58,26 +58,26 @@ poetry run adhlal-etl <input_csv_path> [--config <config_yaml_path>] [--output-c
 
 -   `<input_csv_path>`: Path to the raw chat export CSV file.
 -   `--config <config_yaml_path>`: (Optional) Path to the YAML configuration file for the specific survey type.
-    If omitted, it defaults to `src/etl/configs/student.yml` (for the student survey).
+    If omitted, it defaults to a general configuration (e.g. `src/etl/configs/student.yml` or `src/etl/configs/employer.yml` - check the `src/etl/configs` directory for available configs).
     See `src/etl/configs/CONFIG_SPEC.md` for details on the config file format.
 -   `--output-csv <output_csv_path>`: (Optional) Path to save the structured output as a CSV file.
     If omitted, the pipeline will attempt to load the data into the PostgreSQL database specified by `DATABASE_URL`.
 
 **Examples:**
 
-1.  **Run Student Survey ETL (default config) and output to CSV:**
+1.  **Run ETL with a specific config (e.g. `student.yml`) and output to CSV:**
     ```bash
-    poetry run adhlal-etl path/to/your/Adhlal_all_students.csv --output-csv path/to/output/student_structured_data.csv
+    poetry run adhlal-etl path/to/your/chat_export.csv --config src/etl/configs/student.yml --output-csv path/to/output/structured_data.csv
     ```
 
-2.  **Run Employer Survey ETL (using employer config) and output to CSV:**
+2.  **Run ETL with another specific config (e.g. `employer.yml`) and output to CSV:**
     ```bash
-    poetry run adhlal-etl path/to/your/Ahdlal_employers_all.csv --config src/etl/configs/employer.yml --output-csv path/to/output/employer_structured_data.csv
+    poetry run adhlal-etl path/to/your/another_chat_export.csv --config src/etl/configs/employer.yml --output-csv path/to/output/another_structured_data.csv
     ```
 
-3.  **Run Student Survey ETL and load to PostgreSQL database (ensure `DATABASE_URL` is set):**
+3.  **Run ETL (e.g. using `student.yml` config) and load to PostgreSQL database (ensure `DATABASE_URL` is set):**
     ```bash
-    poetry run adhlal-etl path/to/your/Adhlal_all_students.csv
+    poetry run adhlal-etl path/to/your/chat_export.csv --config src/etl/configs/student.yml
     ```
 
 ## Adding a New Survey Type
@@ -109,12 +109,6 @@ src/
     │   ├── student.yml
     │   ├── employer.yml
     │   └── CONFIG_SPEC.md      # Specification for config files
-    ├── samples/                # Sample input and expected output CSV files
-    │   ├── student_small.csv
-    │   ├── employer_small.csv
-    │   └── _expected/
-    │       ├── student_small_output.csv
-    │       └── employer_small_output.csv
     ├── helpers/
     │   └── windows_loop.py
     ├── __init__.py             # Main ETL package entry point (main, run functions)
